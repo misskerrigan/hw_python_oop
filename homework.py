@@ -17,9 +17,10 @@ class Calculator:
 
     def get_week_stats(self):
         today = dt.date.today()
+        week = dt.timedelta(days=6)
         return sum(record.amount
                    for record in self.records
-                   if today - dt.timedelta(days=6) <= record.date <= today)
+                   if today - week <= record.date <= today)
 
     def today_balance(self):
         day_balance = self.limit - self.get_today_stats()
@@ -51,10 +52,11 @@ class CashCalculator(Calculator):
         }
         if currency not in course:
             return 'Неподдерживаемая валюта'
-        if self.today_balance() == 0:
+        today_balance = self.today_balance()
+        if today_balance == 0:
             return f'Денег нет, держись'
         rate, currency_name = course[currency]
-        balance = round(self.today_balance() / rate, 2)
+        balance = round(today_balance / rate, 2)
         if balance > 0:
             return f'На сегодня осталось {balance} {currency_name}'
         balance = abs(balance)
@@ -63,7 +65,8 @@ class CashCalculator(Calculator):
 
 class CaloriesCalculator(Calculator):
     def get_calories_remained(self):
-        if self.today_balance() > 0:
+        today_balance = self.today_balance()
+        if today_balance > 0:
             return ('Сегодня можно съесть что-нибудь ещё, но с общей '
-                    f'калорийностью не более {self.today_balance()} кКал')
+                    f'калорийностью не более {today_balance} кКал')
         return f'Хватит есть!'
